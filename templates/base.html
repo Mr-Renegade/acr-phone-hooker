@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}ACR Phone Hooker{% endblock %}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #f0f2f5;
+            --bg-secondary: #ffffff;
+            --bg-header: #1a73e8;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --border-color: #dadce0;
+            --shadow: rgba(32,33,36,0.08);
+            --accent-blue: #1a73e8;
+            --accent-green: #188038;
+            --accent-red: #d33b27;
+            --accent-orange: #f57c00;
+            --accent-purple: #a142f4;
+        }
+        
+        [data-theme="dark"] {
+            --bg-primary: #121212;
+            --bg-secondary: #1e1e1e;
+            --bg-header: #0d47a1;
+            --text-primary: #e8eaed;
+            --text-secondary: #9aa0a6;
+            --border-color: #303134;
+            --shadow: rgba(0,0,0,0.3);
+            --accent-blue: #8ab4f8;
+            --accent-green: #81c995;
+            --accent-red: #f28482;
+            --accent-orange: #ffa232;
+            --accent-purple: #d291ff;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 12px;
+            }
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--bg-header) 0%, #0b3d91 100%);
+            color: white;
+            padding: 16px 0;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px var(--shadow);
+        }
+        
+        header .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            letter-spacing: -0.5px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+        }
+        
+        .theme-toggle {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .theme-toggle:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .theme-toggle svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .btn {
+            padding: 8px;
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 4px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .btn:hover {
+            background: rgba(255,255,255,0.1);
+            border-color: rgba(255,255,255,0.5);
+        }
+        
+        .btn svg {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .btn-logout:hover {
+            color: #e74c3c;
+            border-color: #e74c3c;
+        }
+        
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            border-left: 4px solid;
+        }
+        
+        .alert-error {
+            background: #fee;
+            border-color: #e74c3c;
+            color: #c0392b;
+        }
+        
+        .alert-success {
+            background: #efe;
+            border-color: #27ae60;
+            color: #229954;
+        }
+        
+        [data-theme="dark"] .alert-error {
+            background: #4a2020;
+            color: #ff6b6b;
+        }
+        
+        [data-theme="dark"] .alert-success {
+            background: #1e4a2e;
+            color: #6bff6b;
+        }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 40px;
+        }
+        
+        footer a {
+            color: #3498db;
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 22px;
+            }
+            
+            header .container {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .user-info {
+                width: 100%;
+                justify-content: space-between;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 20px;
+            }
+            
+            .user-info {
+                gap: 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🎣 ACR Phone Hooker</h1>
+            {% if current_user.is_authenticated %}
+            <div class="user-info">
+                <button class="theme-toggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+                    <svg id="theme-icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <circle cx="12" cy="12" r="5"></circle>
+                        <line x1="12" y1="1" x2="12" y2="3"></line>
+                        <line x1="12" y1="21" x2="12" y2="23"></line>
+                        <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                        <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        <line x1="1" y1="12" x2="3" y2="12"></line>
+                        <line x1="21" y1="12" x2="23" y2="12"></line>
+                        <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                        <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                    </svg>
+                    <svg id="theme-icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 1 21 12.79z"></path>
+                    </svg>
+                </button>
+                <span>👤 {{ current_user.username }}</span>
+                <a href="{{ url_for('logout') }}" class="btn btn-logout" title="Logout">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2 2v16a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+    
+    <div class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        {% block content %}{% endblock %}
+    </div>
+    
+    <footer>
+        <p>ACR Phone Hooker | <a href="https://nllapps.com/apps/cb/help-call-reporting.htm" target="_blank">Documentation</a></p>
+    </footer>
+    
+    <script>
+        // Dark mode toggle functionality
+        function toggleTheme() {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            
+            // Update icon visibility
+            updateThemeIcon(newTheme);
+        }
+        
+        function updateThemeIcon(theme) {
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+            
+            if (theme === 'dark') {
+                // In dark mode, show moon icon
+                if (moonIcon) moonIcon.style.display = 'block';
+                if (sunIcon) sunIcon.style.display = 'none';
+            } else {
+                // In light mode, show sun icon
+                if (sunIcon) sunIcon.style.display = 'block';
+                if (moonIcon) moonIcon.style.display = 'none';
+            }
+        }
+        
+        // Load saved theme on page load
+        (function() {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            updateThemeIcon(savedTheme);
+        })();
+    </script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
