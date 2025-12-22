@@ -1,3 +1,4 @@
+
 # 🎣 ACR Phone Hooker
 
 A powerful Flask-based call recording management system for [ACR Phone](https://nllapps.com/apps/cb/default.htm). Automatically receive, store, and manage call recordings from your Android device with a beautiful web dashboard.
@@ -33,7 +34,6 @@ A powerful Flask-based call recording management system for [ACR Phone](https://
 - **Systemd Service**: Runs as background service with auto-restart
 - **Cloudflare Tunnel**: Optional remote access via Cloudflare
 - **Split DNS**: Local and remote access with intelligent routing
-- **Automated Backups**: Weekly/monthly backups to network storage
 - **SQLite Database**: No external database dependencies
 
 ## Quick Start
@@ -68,6 +68,7 @@ cp .env.example .env
 # Edit .env with your settings:
 # - Generate SECRET_KEY: openssl rand -hex 32
 # - Set WEB_PASSWORD to a strong password
+# - Configure UPLOAD_FOLDER to your desired location
 ```
 
 5. **Initialize database**:
@@ -109,7 +110,6 @@ acr-phone-hooker/
 │   ├── index.html         # Dashboard page
 │   ├── edit.html          # Edit recording details
 │   └── login.html         # Login page
-├── static/                # CSS, JavaScript, images
 └── logs/                  # Application logs
 ```
 
@@ -125,10 +125,10 @@ FLASK_PORT=5000                             # Port number
 FLASK_DEBUG=False                           # Never enable in production!
 
 # Database
-DATABASE_URL=sqlite:////path/to/recordings.db
+DATABASE_URL=sqlite:////path/to/your/data/recordings.db
 
 # Upload Settings
-UPLOAD_FOLDER=/path/to/uploads              # Where to store audio files
+UPLOAD_FOLDER=/path/to/your/uploads         # Where to store audio files
 MAX_UPLOAD_SIZE_MB=100                      # Max file size
 
 # Web Interface
@@ -223,42 +223,56 @@ gunicorn -w 4 -b 0.0.0.0:5000 app:app
 
 ### With Systemd Service
 ```bash
-# Create /etc/systemd/system/acr-webhook.service
-sudo systemctl enable acr-webhook
-sudo systemctl start acr-webhook
-sudo systemctl status acr-webhook
+# Create /etc/systemd/system/acr-phone-hooker.service
+sudo systemctl enable acr-phone-hooker
+sudo systemctl start acr-phone-hooker
+sudo systemctl status acr-phone-hooker
 ```
 
 ### With Cloudflare Tunnel
 Expose to the internet securely without port forwarding:
+
 ```bash
 # Install cloudflared
 # Configure tunnel to point to localhost:5000
 # Access via https://phone.example.com
 ```
 
-See [Cloudflare Tunnel Setup](./docs/CLOUDFLARE_SETUP.md) for detailed instructions.
+## Data Backup
 
-## Backup & Recovery
-
-### Automatic Backups
-Weekly and monthly backups to `/tank/backup/pihole-acr/`:
-```bash
-# Run backup manually
-/root/bin/pihole-acr-backup.sh
-
-# Restore from backup
-tar -xzf /tank/backup/pihole-acr/weekly/pihole-acr-webhook_latest.tar.gz
-```
+It's recommended to regularly backup your call recordings and database. Here's how:
 
 ### Manual Backup
 ```bash
-tar -czf acr-backup-$(date +%Y%m%d).tar.gz \
+# Create a backup of all data
+tar -czf acr-phone-hooker-backup-$(date +%Y%m%d).tar.gz \
   data/ \
+  uploads/
+
+# For a complete backup including configuration:
+tar -czf acr-phone-hooker-full-$(date +%Y%m%d).tar.gz \
+  data/ \
+  uploads/ \
   .env \
   app.py models.py requirements.txt \
   templates/
 ```
+
+### Restore from Backup
+```bash
+# Extract backup to restore your data
+tar -xzf acr-phone-hooker-backup-YYYYMMDD.tar.gz
+```
+
+### Automated Backups
+Consider setting up a cron job for automatic daily/weekly backups:
+```bash
+# Add to crontab (crontab -e)
+# Daily backup at 2 AM
+0 2 * * * tar -czf /backup/acr-phone-hooker-$(date +\%Y\%m\%d).tar.gz /path/to/data /path/to/uploads
+```
+
+**Note**: Keep backups in a secure location. If storing on external systems, consider encrypting sensitive data.
 
 ## Troubleshooting
 
@@ -266,7 +280,7 @@ tar -czf acr-backup-$(date +%Y%m%d).tar.gz \
 - **Check**: ACR Phone secret matches SECRET_KEY in .env
 - **Check**: Upload folder exists and has write permissions
 - **Check**: Disk space available
-- **Check**: Service logs: `journalctl -u acr-webhook -f`
+- **Check**: Service logs: `journalctl -u acr-phone-hooker -f`
 
 ### Can't Access Dashboard
 - **Local**: Check firewall allows port 5000
@@ -283,8 +297,8 @@ tar -czf acr-backup-$(date +%Y%m%d).tar.gz \
 ### Database Locked
 - **Solution**: Stop service and restart
 ```bash
-sudo systemctl stop acr-webhook
-sudo systemctl start acr-webhook
+sudo systemctl stop acr-phone-hooker
+sudo systemctl start acr-phone-hooker
 ```
 
 ## Performance
@@ -300,7 +314,8 @@ sudo systemctl start acr-webhook
 2. **Use HTTPS**: Always use HTTPS in production
 3. **Change Passwords**: Set strong WEB_PASSWORD
 4. **Firewall**: Only expose via Cloudflare or private network
-5. **Backups**: Keep encrypted backups in secure location
+5. **Regular Backups**: Keep encrypted backups in secure location
+6. **Update Dependencies**: Regularly run `pip install --upgrade -r requirements.txt`
 
 ## Future Roadmap
 
@@ -326,7 +341,6 @@ This project is licensed under the MIT License - see [LICENSE](LICENSE) file for
 
 ## Support
 
-- **Documentation**: See [docs/](docs/) directory
 - **Issues**: Report bugs on GitHub Issues
 - **Discussions**: Ask questions on GitHub Discussions
 - **ACR Phone Docs**: https://nllapps.com/apps/cb/help-call-reporting.htm
