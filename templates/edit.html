@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Edit Recording - ACR Phone{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+    
+    .edit-card {
+        background: var(--bg-secondary);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px var(--shadow);
+    }
+    
+    .edit-card h2 {
+        margin-bottom: 20px;
+        color: var(--text-primary);
+    }
+    
+    .info-section {
+        margin-bottom: 15px;
+        padding: 10px;
+        background: var(--bg-primary);
+        border-radius: 4px;
+        color: var(--text-secondary);
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+    
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid var(--border-color);
+        border-radius: 4px;
+        font-size: 14px;
+        background: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: inherit;
+    }
+    
+    .form-group textarea {
+        resize: vertical;
+        min-height: 80px;
+    }
+    
+    .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+    }
+    
+    .btn-save {
+        background: #3498db;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+    }
+    
+    .btn-save:hover {
+        background: #2980b9;
+    }
+    
+    .btn-cancel {
+        background: #95a5a6;
+        color: white;
+        text-decoration: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        font-size: 14px;
+        display: inline-block;
+    }
+    
+    .btn-cancel:hover {
+        background: #7f8c8d;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="edit-container">
+    <div class="edit-card">
+        <h2>📝 Edit Recording</h2>
+        
+        <div class="info-section">
+            <strong>Recording ID:</strong> {{ recording.id }}<br>
+            <strong>Original Source:</strong> {{ recording.source }}<br>
+            <strong>Date:</strong> {% if recording.date %}{{ recording.date | format_timestamp }}{% else %}N/A{% endif %}
+        </div>
+        
+        <form method="POST">
+            <div class="form-group">
+                <label for="caller_name">Caller Name:</label>
+                <input type="text" id="caller_name" name="caller_name" 
+                       value="{{ recording.caller_name or '' }}" 
+                       placeholder="Enter caller's name">
+            </div>
+            
+            <div class="form-group">
+                <label for="manual_phone">Phone Number:</label>
+                <input type="text" id="manual_phone" name="manual_phone" 
+                       value="{{ recording.manual_phone or '' }}" 
+                       placeholder="Enter phone number (e.g., +1-555-123-4567)">
+            </div>
+            
+            <div class="form-group">
+                <label for="note">📝 Note:</label>
+                <textarea id="note" name="note" 
+                          placeholder="Add a note about this call (e.g., Important customer inquiry, Follow-up needed, etc.)">{{ recording.note or '' }}</textarea>
+            </div>
+            
+            <div class="button-group">
+                <button type="submit" class="btn-save">💾 Save Changes</button>
+                <a href="{{ url_for('dashboard') }}" class="btn-cancel">❌ Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
