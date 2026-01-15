@@ -525,6 +525,51 @@
     {% endif %}
 </div>
 
+{% if recordings and recordings.pages > 1 %}
+<div class="pagination" style="display: flex; justify-content: center; gap: 8px; margin-top: 24px; flex-wrap: wrap;">
+    {# Previous Page #}
+    <a href="{{ url_for('dashboard', page=1) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">&laquo;&laquo;</a>
+    <a href="{{ url_for('dashboard', page=recordings.prev_num if recordings.has_prev else 1) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">&laquo;</a>
+    
+    {# Page Numbers #}
+    {% if recordings.page > 3 %}
+        <a href="{{ url_for('dashboard', page=1) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">1</a>
+        <span style="padding: 8px; color: var(--text-secondary);">...</span>
+    {% endif %}
+    
+    {% for p in range(recordings.page - 2, recordings.page + 3) %}
+        {% if 1 <= p <= recordings.pages %}
+            {% if p == recordings.page %}
+                <span class="btn-page current" style="padding: 8px 14px; border-radius: 6px; background: var(--accent-blue); color: white; font-size: 14px;">{{ p }}</span>
+            {% else %}
+                <a href="{{ url_for('dashboard', page=p) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">{{ p }}</a>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
+    
+    {% if recordings.page < recordings.pages - 2 %}
+        <span style="padding: 8px; color: var(--text-secondary);">...</span>
+        <a href="{{ url_for('dashboard', page=recordings.pages) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">{{ recordings.pages }}</a>
+    {% endif %}
+    
+    {# Next Page #}
+    <a href="{{ url_for('dashboard', page=recordings.next_num if recordings.has_next else recordings.pages) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">&raquo;</a>
+    <a href="{{ url_for('dashboard', page=recordings.pages) }}" class="btn-page" style="padding: 8px 12px; border-radius: 6px; background: var(--bg-secondary); color: var(--text-primary); text-decoration: none; border: 1px solid var(--border-color); font-size: 14px;">&raquo;&raquo;</a>
+</div>
+
+<div style="text-align: center; margin-top: 12px; color: var(--text-secondary); font-size: 13px;">
+    Page {{ recordings.page }} of {{ recordings.pages }} | Showing {{ recordings.per_page }} per page
+</div>
+{% endif %}
+
+<style>
+.btn-page:hover {
+    background: var(--accent-blue) !important;
+    color: white !important;
+    border-color: var(--accent-blue) !important;
+}
+</style>
+
 <audio id="audioPlayer" controls style="display: none; margin-top: 20px; width: 100%;"></audio>
 {% endblock %}
 
